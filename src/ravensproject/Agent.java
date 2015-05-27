@@ -90,18 +90,18 @@ public class Agent {
 		 */
 		// only generate possible relationships
 		/***************** relationships across ********************/
-		
+
 		// find difference in attributes in a list of RavensFigures
 		for (int x = 0; x < matrixSize - 1; x++) {
-			//each column's change needs to be the same.
+			// each column's change needs to be the same.
 			List<RavensFigure> list = new ArrayList<>();
-			for (int y=0; y<matrixSize; y++){
+			for (int y = 0; y < matrixSize; y++) {
 				list.add(matrix[x][y]);
 			}
-			//find difference
-			
-				findRelationship(list);
-		
+			// find difference
+
+			findRelationship(list);
+
 		}
 
 		// generate ways of achieve that difference
@@ -111,10 +111,10 @@ public class Agent {
 		// generate ways of achieve that difference
 		for (int y = 0; y < matrixSize - 1; y++) {
 			List<RavensFigure> list = new ArrayList<>();
-			for (int x=0; x<matrixSize; x++){
+			for (int x = 0; x < matrixSize; x++) {
 				list.add(matrix[x][y]);
 			}
-			//find difference
+			// find difference
 			findRelationship(list);
 
 		}
@@ -152,60 +152,76 @@ public class Agent {
 		}
 		return -1;
 	}
-	
-	private Map<String,CHANGE> findRelationship(List<RavensFigure> list){
+
+	//TODO each object needs  a map of changes
+	private Map<String, CHANGE> findRelationship(List<RavensFigure> list) {
 		HashMap<String, String> attributes = null;
-		Map<String,CHANGE> attrChange = new HashMap<>();
-		for(RavensFigure figure:list){
-			for(String objectKey: figure.getObjects().keySet()){
-				HashMap<String, String> temp = figure.getObjects().get(objectKey).getAttributes();
-				if(attributes==null){
-					attributes=temp;
-					for(String attrKey:temp.keySet()){
+		Map<String, CHANGE> attrChange = new HashMap<>();
+		for (RavensFigure figure : list) {
+			for (String objectKey : figure.getObjects().keySet()) {
+				HashMap<String, String> temp = figure.getObjects()
+						.get(objectKey).getAttributes();
+				if (attributes == null) {
+					attributes = temp;
+					for (String attrKey : temp.keySet()) {
 						attrChange.put(attrKey, CHANGE.NO_CHANGE);
 					}
-					
+
 				}
-				for(String attrKey: temp.keySet()){
-					//key was found
-					if(attributes.containsKey(attrKey)){
-						
-						
-					}else{
-						attributes.put(attrKey,temp.get(attrKey));
-						attrChange.put(attrKey, CHANGE.ADDITION);						
+				for (String attrKey : temp.keySet()) {
+					// key was found
+					//TODO above, inside, below, etc.
+					if (attributes.containsKey(attrKey)) {
+						if (!attributes.get(attrKey).equals(temp.get(attrKey))) {
+							if (attrKey.equals("size")) {
+								attrChange.put(attrKey, CHANGE.SCALED);
+							} else if (attrKey.equals("angle")) {
+								attrChange.put(attrKey, CHANGE.ROTATED);
+							} else if (attrKey.equals("fill")) {
+								attrChange.put(attrKey, CHANGE.FILL);
+							} else if (attrKey.equals("shape")) {
+								attrChange.put(attrKey, CHANGE.SHAPE);
+							} else {
+								attrChange.put(attrKey, CHANGE.TRANSLATION);
+							}
+						}
+
+					} else {
+						attributes.put(attrKey, temp.get(attrKey));
+						attrChange.put(attrKey, CHANGE.ADDITION);
 					}
-					
+
 				}
-				
+				// search for deletions
+				for (String key : attributes.keySet()) {
+					if (!temp.containsKey(key)) {
+						attributes.remove(key);
+						attrChange.put(key, CHANGE.DELETION);
+
+					}
+				}
+
 			}
 		}
-		
-		
-		
+
 		return attrChange;
 	}
-//
-//Unchanged  
-//5 points
-//Reflected 
-//4 points
-//Rotated 
-//3 points
-//Scaled 
-//2 points
-//Deleted 
-//1 point
-//Shape unchanged 
-//0 point
 
-	enum CHANGE{
-		NO_CHANGE,
-		REFLECTED,
-		ROTATED,
-		SCALED,
-		ADDITION,
-		DELETION,
-		TRANSLATION,
+	//
+	// Unchanged
+	// 5 points
+	// Reflected
+	// 4 points
+	// Rotated
+	// 3 points
+	// Scaled
+	// 2 points
+	// Deleted
+	// 1 point
+	// Shape unchanged
+	// 0 point
+
+	enum CHANGE {
+		NO_CHANGE, REFLECTED, ROTATED, SCALED, SHAPE, FILL, ADDITION, DELETION, TRANSLATION,
 	}
 }
