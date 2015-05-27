@@ -1,6 +1,9 @@
 package ravensproject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // Uncomment these lines to access image processing.
 //import java.awt.Image;
@@ -79,20 +82,45 @@ public class Agent {
 					+ i);
 		}
 		/************************************** generate and test ****************************************/
-		/* O X X
-		 * Y 
-		 * Y
+		/*
+		 * O X ? Y ? ? ? ? ?
 		 * 
 		 * 
-		 * O X
-		 * Y
+		 * O ? ? ?
 		 */
-		//only generate possible relationships
-		//generate relationships across
-		//generate relationships down
+		// only generate possible relationships
+		/***************** relationships across ********************/
 		
-		//TEST
-		//for all answers see if it passes relationship
+		// find difference in attributes in a list of RavensFigures
+		for (int x = 0; x < matrixSize - 1; x++) {
+			//each column's change needs to be the same.
+			List<RavensFigure> list = new ArrayList<>();
+			for (int y=0; y<matrixSize; y++){
+				list.add(matrix[x][y]);
+			}
+			//find difference
+			
+				findRelationship(list);
+		
+		}
+
+		// generate ways of achieve that difference
+
+		/***************** relationships down **********************/
+		// find difference in attributes
+		// generate ways of achieve that difference
+		for (int y = 0; y < matrixSize - 1; y++) {
+			List<RavensFigure> list = new ArrayList<>();
+			for (int x=0; x<matrixSize; x++){
+				list.add(matrix[x][y]);
+			}
+			//find difference
+			findRelationship(list);
+
+		}
+		// TEST
+		// for all answers see if there is at least one answer that passes the
+		// relationship
 
 		for (String key : figures.keySet()) {
 			System.out
@@ -123,5 +151,61 @@ public class Agent {
 
 		}
 		return -1;
+	}
+	
+	private Map<String,CHANGE> findRelationship(List<RavensFigure> list){
+		HashMap<String, String> attributes = null;
+		Map<String,CHANGE> attrChange = new HashMap<>();
+		for(RavensFigure figure:list){
+			for(String objectKey: figure.getObjects().keySet()){
+				HashMap<String, String> temp = figure.getObjects().get(objectKey).getAttributes();
+				if(attributes==null){
+					attributes=temp;
+					for(String attrKey:temp.keySet()){
+						attrChange.put(attrKey, CHANGE.NO_CHANGE);
+					}
+					
+				}
+				for(String attrKey: temp.keySet()){
+					//key was found
+					if(attributes.containsKey(attrKey)){
+						
+						
+					}else{
+						attributes.put(attrKey,temp.get(attrKey));
+						attrChange.put(attrKey, CHANGE.ADDITION);						
+					}
+					
+				}
+				
+			}
+		}
+		
+		
+		
+		return attrChange;
+	}
+//
+//Unchanged  
+//5 points
+//Reflected 
+//4 points
+//Rotated 
+//3 points
+//Scaled 
+//2 points
+//Deleted 
+//1 point
+//Shape unchanged 
+//0 point
+
+	enum CHANGE{
+		NO_CHANGE,
+		REFLECTED,
+		ROTATED,
+		SCALED,
+		ADDITION,
+		DELETION,
+		TRANSLATION,
 	}
 }
