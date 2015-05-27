@@ -62,28 +62,65 @@ public class Agent {
 		System.out
 				.println("/*************************solver started***************************************/");
 		System.out.println("problem Name: " + problem.getName());
-		System.out.println("problem Type:"+problem.getProblemType());
-		HashMap<String, RavensFigure>figures = problem.getFigures();
-		for(String key:figures.keySet()){
-			System.out.println("######################Figure###############################");
-			System.out.println("Raven Figure: "+key);
-			RavensFigure figure=figures.get(key);
-			
-			System.out.println("figure name: "+figure.getName());
-			System.out.println("figure visual: "+figure.getVisual());
-			
-			for(String objKey:figure.getObjects().keySet()){
-				System.out.println("-------------------- objects ----------------------");
-				System.out.println("Raven Obj: "+objKey);
+		int panels = problem.getProblemType().equals("2x2") ? 3 : 8;
+		int matrixSize = panels == 3 ? 2 : 3;
+		RavensFigure[][] matrix = new RavensFigure[matrixSize][matrixSize];
+		int choices = panels == 3 ? 6 : 8;
+		HashMap<String, RavensFigure> figures = problem.getFigures();
+
+		char panelSelection = 'A';
+		/************************************** semantic network ****************************************/
+		// 1. iterate through 0 - panels + 'A' and convert to raven figure
+		// 2. iterate through 0 - choices and convert to raven figure
+
+		// initialize matrix
+		for (int i = 0; i < panels; i++) {
+			matrix[i / matrixSize][i % matrixSize] = figures.get(panelSelection
+					+ i);
+		}
+		/************************************** generate and test ****************************************/
+		/* O X X
+		 * Y 
+		 * Y
+		 * 
+		 * 
+		 * O X
+		 * Y
+		 */
+		//only generate possible relationships
+		//generate relationships across
+		//generate relationships down
+		
+		//TEST
+		//for all answers see if it passes relationship
+
+		for (String key : figures.keySet()) {
+			System.out
+					.println("######################Figure###############################");
+			System.out.println("Raven Figure: " + key);
+			RavensFigure figure = figures.get(key);
+
+			System.out.println("figure name: " + figure.getName());
+
+			// construct a matrix
+			// 3. use generate and test for valid relations
+			// 4. use means-ends analysis to find optimal answer
+			System.out.println("figure visual: " + figure.getVisual());
+
+			for (String objKey : figure.getObjects().keySet()) {
+				System.out
+						.println("-------------------- objects ----------------------");
+				System.out.println("Raven Obj: " + objKey);
 				RavensObject obj = figure.getObjects().get(objKey);
-				System.out.println("Object: "+obj.getName());
-				for(String attrKey:obj.getAttributes().keySet()){
-					System.out.println("attribute: "+ attrKey);
-					System.out.println("attribute value: "+obj.getAttributes().get(attrKey));
+				System.out.println("Object: " + obj.getName());
+				for (String attrKey : obj.getAttributes().keySet()) {
+					System.out.println("attribute: " + attrKey);
+					System.out.println("attribute value: "
+							+ obj.getAttributes().get(attrKey));
 				}
-				
+
 			}
-			
+
 		}
 		return -1;
 	}
