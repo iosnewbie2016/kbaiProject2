@@ -274,9 +274,29 @@ public class Agent {
 		// TODO update changes
 		return null;
 	}
-
+	/**
+	 * return all the possible difference between the 2 frames
+	 * @param figure
+	 * @param lastFrame
+	 * @return
+	 */
 	private List<List<HashMap<String, CHANGE>>> findDifference(
 			RavensFigure figure, RavensFigure lastFrame) {
+		//hashMap = possible change for object
+		//List<hashMap>= possible changes for frame
+		//list<list<hashmap>> = list of all possible changes for the frame
+		if(figure.getObjects().keySet().size()!=lastFrame.getObjects().keySet().size()){
+			//things got deleted/added
+			//delete enough objects from last frame to make sure the number of objects match.
+			
+		}else{
+			//number of object are the same
+			//see the difference between obj1 of figure and obj1 of last frame
+			//see the difference between obj2 of figure and obj2 of last frame
+			//etc.
+		}
+		
+		
 		// TODO find a list of differences
 		// TEMP only do differences if the object numbers dont add up
 		return null;
