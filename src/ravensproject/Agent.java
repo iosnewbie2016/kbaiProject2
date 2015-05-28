@@ -78,8 +78,9 @@ public class Agent {
 
 		// initialize matrix
 		for (int i = 0; i < panels; i++) {
-			matrix[i / matrixSize][i % matrixSize] = figures.get(panelSelection
-					+ i);
+
+			matrix[i / matrixSize][i % matrixSize] = figures.get(Character
+					.valueOf((char) (panelSelection + i)).toString());
 		}
 		/************************************** generate and test ****************************************/
 		/*
@@ -90,8 +91,6 @@ public class Agent {
 		 */
 		// only generate possible relationships
 		/***************** relationships across ********************/
-		Map<String,Map<String, CHANGE>> relationshipX;
-		Map<String,Map<String, CHANGE>> relationshipY;
 		// find difference in attributes in a list of RavensFigures
 		for (int x = 0; x < matrixSize - 1; x++) {
 			// each column's change needs to be the same.
@@ -101,7 +100,6 @@ public class Agent {
 			}
 			// find difference
 			// relationship for row
-			relationshipX = findRelationship(list);
 
 		}
 
@@ -117,7 +115,7 @@ public class Agent {
 			}
 			// find relationship
 			// relationship for column
-			relationshipY = findRelationship(list);
+			// relationshipY = findRelationship(list);
 
 		}
 		// TEST
@@ -155,69 +153,133 @@ public class Agent {
 		return -1;
 	}
 
-	/**
-	 * map <object, <attribute, change>>
-	 * @param list
-	 * @return
-	 */
-	private Map<String,Map<String, CHANGE>> findRelationship(List<RavensFigure> list) {
-		
-		HashMap<String, Map<String, CHANGE>> change = new HashMap<>();
-		for (RavensFigure figure : list) {
-			for (String objectKey : figure.getObjects().keySet()) {
-				HashMap<String, String> attributes = null;
-				Map<String, CHANGE> attrChange =null;
-				if(change.containsKey(objectKey)){
-					attrChange = change.get(objectKey);
-				}else{
-					
-				 attrChange = new HashMap<>();
-				}
-				HashMap<String, String> temp = figure.getObjects()
-						.get(objectKey).getAttributes();
-				if (attributes == null) {
-					attributes = temp;
-					for (String attrKey : temp.keySet()) {
-						attrChange.put(attrKey, CHANGE.NO_CHANGE);
-					}
-				}
-				for (String attrKey : temp.keySet()) {
-					// key was found
-					//TODO above, inside, below, etc.
-					if (attributes.containsKey(attrKey)) {
-						if (!attributes.get(attrKey).equals(temp.get(attrKey))) {
-							if (attrKey.equals("size")) {
-								attrChange.put(attrKey, CHANGE.SCALED);
-							} else if (attrKey.equals("angle")) {
-								attrChange.put(attrKey, CHANGE.ROTATED);
-							} else if (attrKey.equals("fill")) {
-								attrChange.put(attrKey, CHANGE.FILL);
-							} else if (attrKey.equals("shape")) {
-								attrChange.put(attrKey, CHANGE.SHAPE);
-							} else {
-								attrChange.put(attrKey, CHANGE.TRANSLATION);
-							}
-						}
+	private void generateAndTest(List<HashMap<String, CHANGE>> changes,
+			RavensFigure lastFrame, List<RavensFigure> list, int[] answerScore) {
 
-					} else {
-						attributes.put(attrKey, temp.get(attrKey));
-						attrChange.put(attrKey, CHANGE.ADDITION);
-					}
-
-				}
-				// search for deletions
-				for (String key : attributes.keySet()) {
-					if (!temp.containsKey(key)) {
-						attributes.remove(key);
-						attrChange.put(key, CHANGE.DELETION);
-
-					}
-				}
-				change.put(objectKey, attrChange);
+		if (list == null || list.size() == 0) {
+			// TODO Test changes on last row and column of matrix.
+		} else {
+			RavensFigure figure = list.get(0);
+			if (lastFrame == null) {
+				lastFrame = figure;
 			}
+
+			list.remove(0);
+			// Find difference
+			List<List<HashMap<String, CHANGE>>> differences = findDifference(
+					figure, lastFrame);
+			for (List<HashMap<String, CHANGE>> difference : differences) {
+
+				// update changes
+				List<HashMap<String, CHANGE>> newChanges = updateChange(changes, difference);
+				generateAndTest(newChanges, figure, list, answerScore);
+			}
+
 		}
 
-		return change;
+		return;
+		// List<Map<String, CHANGE>> change = new ArrayList<>();
+		// RavensFigure lastFrame = null;
+		// for (RavensFigure figure : list) {
+		// if (figure != null && figure.getObjects() != null) {
+		// // compare list size and keyset size.
+		// // if change is 0 initialize
+		// if (change.size() == 0) {
+		// lastFrame = figure;
+		// for (String objectKey : figure.getObjects().keySet()) {
+		// Map<String, CHANGE> attrChange = new HashMap<>();
+		// RavensObject obj = figure.getObjects().get(objectKey);
+		// for (String attrKey : obj.getAttributes().keySet()) {
+		// attrChange.put(attrKey, CHANGE.NO_CHANGE);
+		// }
+		// change.add(attrChange);
+		// }
+		// } else if (change.size() != figure.getObjects().keySet().size()) {
+		// // if size is different, then an addition or subtraction has
+		// // occurred
+		//
+		// } else {
+		// // if size is the same
+		// // for each object check attribute change
+		// }
+		// }
+		// }
+		// return change;
+
+		//
+		// for (String objectKey : figure.getObjects().keySet()) {
+		//
+		//
+		//
+		//
+		//
+		// HashMap<String, String> attributes = null;
+		// Map<String, CHANGE> attrChange =null;
+		// if(change.containsKey(objectKey)){
+		// attrChange = change.get(objectKey);
+		// }else{
+		//
+		// attrChange = new HashMap<>();
+		// }
+		// HashMap<String, String> temp = figure.getObjects()
+		// .get(objectKey).getAttributes();
+		// if (attributes == null) {
+		// attributes = temp;
+		// for (String attrKey : temp.keySet()) {
+		// attrChange.put(attrKey, CHANGE.NO_CHANGE);
+		// }
+		// }
+		// for (String attrKey : temp.keySet()) {
+		// // key was found
+
+		// if (attributes.containsKey(attrKey)) {
+		// if (!attributes.get(attrKey).equals(temp.get(attrKey))) {
+		// if (attrKey.equals("size")) {
+		// attrChange.put(attrKey, CHANGE.SCALED);
+		// } else if (attrKey.equals("angle")) {
+		// attrChange.put(attrKey, CHANGE.ROTATED);
+		// } else if (attrKey.equals("fill")) {
+		// attrChange.put(attrKey, CHANGE.FILL);
+		// } else if (attrKey.equals("shape")) {
+		// attrChange.put(attrKey, CHANGE.SHAPE);
+		// } else {
+		// attrChange.put(attrKey, CHANGE.TRANSLATION);
+		// }
+		// }
+		//
+		// } else {
+		// attributes.put(attrKey, temp.get(attrKey));
+		// attrChange.put(attrKey, CHANGE.ADDITION);
+		// }
+		//
+		// }
+		// // search for deletions
+		// for (String key : attributes.keySet()) {
+		// if (!temp.containsKey(key)) {
+		// attributes.remove(key);
+		// attrChange.put(key, CHANGE.DELETION);
+		//
+		// }
+		// }
+		// change.append(attrChange);
+		// }
+		// }
+		//
+		// return change;
+	}
+
+	private List<HashMap<String, CHANGE>> updateChange(
+			List<HashMap<String, CHANGE>> changes,
+			List<HashMap<String, CHANGE>> difference) {
+		// TODO update changes
+		return null;
+	}
+
+	private List<List<HashMap<String, CHANGE>>> findDifference(
+			RavensFigure figure, RavensFigure lastFrame) {
+		// TODO find a list of differences
+		// TEMP only do differences if the object numbers dont add up
+		return null;
 	}
 
 	//

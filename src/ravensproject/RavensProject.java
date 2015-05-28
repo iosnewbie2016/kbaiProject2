@@ -73,6 +73,7 @@ public class RavensProject {
                         
                         results.println(problem.getName() + "," + problem.getGivenAnswer() + "," + problem.getCorrect() + "," + problem.checkAnswer(0));
                     } catch(Exception ex) {
+                    	ex.printStackTrace();
                         System.out.println("Error encountered in " + problem.getName());
                         results.println(problem.getName() + "," + problem.getGivenAnswer() + ",Error," + problem.checkAnswer(0));
                     }
