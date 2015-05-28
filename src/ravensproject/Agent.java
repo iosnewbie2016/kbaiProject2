@@ -90,7 +90,8 @@ public class Agent {
 		 */
 		// only generate possible relationships
 		/***************** relationships across ********************/
-
+		Map<String,Map<String, CHANGE>> relationshipX;
+		Map<String,Map<String, CHANGE>> relationshipY;
 		// find difference in attributes in a list of RavensFigures
 		for (int x = 0; x < matrixSize - 1; x++) {
 			// each column's change needs to be the same.
@@ -99,8 +100,8 @@ public class Agent {
 				list.add(matrix[x][y]);
 			}
 			// find difference
-
-			findRelationship(list);
+			// relationship for row
+			relationshipX = findRelationship(list);
 
 		}
 
@@ -114,8 +115,9 @@ public class Agent {
 			for (int x = 0; x < matrixSize; x++) {
 				list.add(matrix[x][y]);
 			}
-			// find difference
-			findRelationship(list);
+			// find relationship
+			// relationship for column
+			relationshipY = findRelationship(list);
 
 		}
 		// TEST
@@ -153,12 +155,24 @@ public class Agent {
 		return -1;
 	}
 
-	//TODO each object needs  a map of changes
-	private Map<String, CHANGE> findRelationship(List<RavensFigure> list) {
-		HashMap<String, String> attributes = null;
-		Map<String, CHANGE> attrChange = new HashMap<>();
+	/**
+	 * map <object, <attribute, change>>
+	 * @param list
+	 * @return
+	 */
+	private Map<String,Map<String, CHANGE>> findRelationship(List<RavensFigure> list) {
+		
+		HashMap<String, Map<String, CHANGE>> change = new HashMap<>();
 		for (RavensFigure figure : list) {
 			for (String objectKey : figure.getObjects().keySet()) {
+				HashMap<String, String> attributes = null;
+				Map<String, CHANGE> attrChange =null;
+				if(change.containsKey(objectKey)){
+					attrChange = change.get(objectKey);
+				}else{
+					
+				 attrChange = new HashMap<>();
+				}
 				HashMap<String, String> temp = figure.getObjects()
 						.get(objectKey).getAttributes();
 				if (attributes == null) {
@@ -166,7 +180,6 @@ public class Agent {
 					for (String attrKey : temp.keySet()) {
 						attrChange.put(attrKey, CHANGE.NO_CHANGE);
 					}
-
 				}
 				for (String attrKey : temp.keySet()) {
 					// key was found
@@ -200,11 +213,11 @@ public class Agent {
 
 					}
 				}
-
+				change.put(objectKey, attrChange);
 			}
 		}
 
-		return attrChange;
+		return change;
 	}
 
 	//
