@@ -75,7 +75,7 @@ public class Agent {
 		int matrixSize = panels == 3 ? 2 : 3;
 		RavensFigure[][] matrix = new RavensFigure[matrixSize][matrixSize];
 		int choices = panels == 3 ? 6 : 8;
-		boolean[] validChoices = new boolean[choices];
+		int[] validChoices = new int[choices];
 		int[] scores = new int[choices];
 		Arrays.fill(scores, -1);
 		HashMap<String, RavensFigure> figures = problem.getFigures();
@@ -118,22 +118,32 @@ public class Agent {
 		// for all answers see if there is at least one answer that passes the
 		int isPossibleX = testReleationship("x", matrixSize, matrix);
 		int isPossibleY = testReleationship("y", matrixSize, matrix);
-		System.out.println("X+Y = " + isPossibleX + " " + isPossibleY);
+		System.out.println(" X+Y" + isPossibleX + " " + isPossibleY);
 		for (int i = 1; i <= choices; i++) {
 			// add answer choice to last element
 			listY.add(figures.get(i + ""));
 			listX.add(figures.get(i + ""));
 			differenceY = generateRelationship(listY);
 			differenceX = generateRelationship(listX);
+			// TODO[DEBUG] remove
+			if (problem.getName().equals("Basic Problem B-08")) {
+				if (i == 3 || i == 6) {
+					System.out.println("ANSWER" + i);
 
+					System.out.println("difference in Y ");
+					printRelationship(differenceY);
+					System.out.println("difference in X ");
+					printRelationship(differenceX);
+				}
+			}
 			int scoreX = calculateScore(differenceX);
 			int scoreY = calculateScore(differenceY);
 
 			// TEST answer choice
-
+			
 			// validChoices[i - 1] = isPossibleX && isPossibleY;
-			scores[i - 1] = Math.abs((isPossibleX + isPossibleY)
-					- (scoreX + scoreY));
+			scores[i - 1] = Math.abs(((isPossibleY - scoreY))
+					+ (isPossibleX - scoreX));
 			System.out.println("scores[" + (i - 1) + "] = " + scoreX + " "
 					+ scoreY + "=" + scores[i - 1]);
 
@@ -153,6 +163,27 @@ public class Agent {
 		System.out.println("The Answer picked is: " + (resultIndex + 1));
 		return resultIndex + 1;
 
+	}
+
+	// prints out the relationship
+	// for debugging purposes only
+	private String printRelationship(List<List<Map<String, CHANGE>>> difference) {
+		int frameIndex = 1;
+		for (List<Map<String, CHANGE>> frame : difference) {
+			int objectIndex = 1;
+			System.out.println("frame" + frameIndex
+					+ "--------------------------------");
+			for (Map<String, CHANGE> object : frame) {
+				System.out.println("object" + objectIndex
+						+ "--------------------------------");
+				for (String attrKey : object.keySet()) {
+					System.out.println(attrKey + " : " + object.get(attrKey));
+				}
+				objectIndex++;
+			}
+			frameIndex++;
+		}
+		return null;
 	}
 
 	private int testReleationship(String string, int matrixSize,
@@ -188,7 +219,6 @@ public class Agent {
 			}
 		}
 
-		// TODO Auto-generated method stub
 		return score / (matrixSize - 1);
 	}
 
@@ -280,37 +310,54 @@ public class Agent {
 						if (attrKey.equals("size")) {
 							attrChange = CHANGE.SCALED;
 						} else if (attrKey.equals("angle")) {
-							int value = Integer.valueOf(figureObject
-									.getAttributes()
-									.get(attrKey))
-									-Integer.valueOf(lastFrameObject.getAttributes()
+							int figureValue = Integer.valueOf(figureObject
+									.getAttributes().get(attrKey));
+							int lastFrameValue = Integer
+									.valueOf(lastFrameObject.getAttributes()
 											.get(attrKey));
-							System.out.println("value1: "+Integer.valueOf(figureObject
-									.getAttributes()
-									.get(attrKey)));
-							System.out.println("value2: "+Integer.valueOf(lastFrameObject
-									.getAttributes()
-									.get(attrKey)));
-							if(value==45||value==-45){
-								
-							attrChange = CHANGE.ROTATED_45;
-							}else if(value==90||value==-90){
-								
-								attrChange = CHANGE.ROTATED_90;
-							}else if(value==135||value==-135){
-								attrChange = CHANGE.ROTATED_135;
-							}else if(value==180||value==-180){
-								attrChange = CHANGE.ROTATED_180;
-							}else if(value==225||value==-225){
-								attrChange = CHANGE.ROTATED_225;
-							}else if(value==270||value==-270){
-								attrChange = CHANGE.ROTATED_270;
-							}else if(value==315||value==-315){
-							
-								attrChange = CHANGE.ROTATED_315;
+
+							int value = figureValue - lastFrameValue;
+
+							if (value > 180) {
+								value -= 360;
 							}
+							if (value == 45) {
+								attrChange = CHANGE.ROTATED_45;
+							} else if (value == 90) {
+								attrChange = CHANGE.ROTATED_90;
+							} else if (value == 135) {
+								attrChange = CHANGE.ROTATED_135;
+							} else if (value == 180) {
+								attrChange = CHANGE.ROTATED_180;
+							} else if (value == 225) {
+								attrChange = CHANGE.ROTATED_225;
+							} else if (value == 270) {
+								attrChange = CHANGE.ROTATED_270;
+							} else if (value == 315) {
+								attrChange = CHANGE.ROTATED_315;
+							} else if (value == -45) {
+								attrChange = CHANGE.ROTATED_NEG_45;
+							} else if (value == -90) {
+								attrChange = CHANGE.ROTATED_NEG_90;
+							} else if (value == -135) {
+								attrChange = CHANGE.ROTATED_NEG_135;
+							} else if (value == -180) {
+								attrChange = CHANGE.ROTATED_NEG_180;
+							} else if (value == -225) {
+								attrChange = CHANGE.ROTATED_NEG_225;
+							} else if (value == -270) {
+								attrChange = CHANGE.ROTATED_NEG_270;
+							} else if (value == -315) {
+								attrChange = CHANGE.ROTATED_NEG_315;
+							}
+
 						} else if (attrKey.equals("fill")) {
-							attrChange = CHANGE.FILL;
+							if (figureObject.getAttributes().get(attrKey)
+									.equals("no")) {
+								attrChange = CHANGE.UNFILL;
+							} else {
+								attrChange = CHANGE.FILL;
+							}
 						} else {
 							attrChange = CHANGE.TRANSLATION;
 						}
@@ -368,35 +415,57 @@ public class Agent {
 		// 0 point
 		for (CHANGE change : changes) {
 			if (change.equals(CHANGE.NO_CHANGE)) {
-				score += 20;
+				score += 25;
 			} else if (change.equals(CHANGE.REFLECTED)) {
-				score += 16;
+				score += 19;
 			} else if (change.equals(CHANGE.ROTATED_45)) {
+				score += 18;
+			} else if (change.equals(CHANGE.ROTATED_90)) {
+				score += 17;
+			} else if (change.equals(CHANGE.ROTATED_135)) {
+				score += 16;
+			} else if (change.equals(CHANGE.ROTATED_180)) {
 				score += 15;
-			}else if (change.equals(CHANGE.ROTATED_90)) {
-				score += 11;
-			}else if (change.equals(CHANGE.ROTATED_135)) {
-				score += 10;
-			}else if (change.equals(CHANGE.ROTATED_180)) {
-				score += 9;
-			}else if (change.equals(CHANGE.ROTATED_225)) {
-				score += 8;
-			}else if (change.equals(CHANGE.ROTATED_270)) {
-				score += 7;
-			}else if (change.equals(CHANGE.ROTATED_315)) {
-				score += 6;
-			}else if (change.equals(CHANGE.SCALED)
+			} else if (change.equals(CHANGE.ROTATED_225)) {
+				score += 14;
+			} else if (change.equals(CHANGE.ROTATED_270)) {
+				score += 13;
+			} else if (change.equals(CHANGE.ROTATED_315)) {
+				score += 12;
+			} else if (change.equals(CHANGE.ROTATED_NEG_45)) {
+				score -= 19;
+			} else if (change.equals(CHANGE.ROTATED_NEG_90)) {
+				score -= 18;
+			} else if (change.equals(CHANGE.ROTATED_NEG_135)) {
+				score -= 17;
+			} else if (change.equals(CHANGE.ROTATED_NEG_180)) {
+				score -= 16;
+			} else if (change.equals(CHANGE.ROTATED_NEG_225)) {
+				score -= 15;
+			} else if (change.equals(CHANGE.ROTATED_NEG_270)) {
+				score -= 14;
+			} else if (change.equals(CHANGE.ROTATED_NEG_315)) {
+				score -= 13;
+			} else if (change.equals(CHANGE.SCALED)
 					|| change.equals(CHANGE.FILL)) {
-				score += 4;
+				score += 20;
+			}else if (change.equals(CHANGE.UNFILL)) {
+					score += 27;
 			} else if (change.equals(CHANGE.ADDITION)
 					|| change.equals(CHANGE.DELETION)) {
-				score -= 10;
+				if (change.equals(CHANGE.ADDITION)) {
+					score += 10;
+				} else {
+					score += 5;
+				}
+			} else if (change.equals(CHANGE.TRANSLATION)) {
+				score += 2;
 			}
 		}
 		return score;
 	}
 
 	enum CHANGE {
-		NO_CHANGE, REFLECTED, ROTATED_45, ROTATED_90,ROTATED_135,ROTATED_180,ROTATED_225,ROTATED_270,ROTATED_315, SCALED, FILL, ADDITION, DELETION, TRANSLATION,
+		NO_CHANGE, REFLECTED, ROTATED_45, ROTATED_90, ROTATED_135, ROTATED_180, ROTATED_225, ROTATED_270, ROTATED_315, ROTATED_NEG_45, ROTATED_NEG_90, ROTATED_NEG_135, ROTATED_NEG_180, ROTATED_NEG_225, ROTATED_NEG_270, ROTATED_NEG_315, SCALED, FILL, UNFILL, ADDITION, DELETION, TRANSLATION,
 	}
 }
