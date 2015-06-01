@@ -116,7 +116,9 @@ public class Agent {
 		// TEST
 		// TEST transformation
 		// for all answers see if there is at least one answer that passes the
-
+		int isPossibleX = testReleationship("x", matrixSize, matrix);
+		int isPossibleY = testReleationship("y", matrixSize, matrix);
+		System.out.println("X+Y = " + isPossibleX + " " + isPossibleY);
 		for (int i = 1; i <= choices; i++) {
 			// add answer choice to last element
 			listY.add(figures.get(i + ""));
@@ -124,67 +126,70 @@ public class Agent {
 			differenceY = generateRelationship(listY);
 			differenceX = generateRelationship(listX);
 
+			int scoreX = calculateScore(differenceX);
+			int scoreY = calculateScore(differenceY);
+
 			// TEST answer choice
-			boolean isPossibleX = testReleationship("x", differenceX, matrix);
-			boolean isPossibleY = testReleationship("y", differenceY, matrix);
-			validChoices[i - 1] = isPossibleX && isPossibleY;
-			scores[i - 1] = calculateScore(differenceX)
-					+ calculateScore(differenceY);
+
+			// validChoices[i - 1] = isPossibleX && isPossibleY;
+			scores[i - 1] = Math.abs((isPossibleX + isPossibleY)
+					- (scoreX + scoreY));
+			System.out.println("scores[" + (i - 1) + "] = " + scoreX + " "
+					+ scoreY + "=" + scores[i - 1]);
 
 			// removing last element
 			listY.remove(listY.size() - 1);
 			listX.remove(listX.size() - 1);
 
 		}
-		int result = -1;
-		int resultIndex = -1;
+		int result = Integer.MAX_VALUE;
+		int resultIndex = -2;
 		for (int z = 0; z < scores.length; z++) {
-			if (validChoices[z] && scores[z] > result) {
+			if (scores[z] < result) {
 				result = scores[z];
 				resultIndex = z;
 			}
 		}
-
-		return resultIndex;
-
-		// // return top choices
-		// // relationship
-		//
-		// for (String key : figures.keySet()) {
-		// System.out
-		// .println("######################Figure###############################");
-		// System.out.println("Raven Figure: " + key);
-		// RavensFigure figure = figures.get(key);
-		//
-		// System.out.println("figure name: " + figure.getName());
-		//
-		// // construct a matrix
-		// // 3. use generate and test for valid relations
-		// // 4. use means-ends analysis to find optimal answer
-		// System.out.println("figure visual: " + figure.getVisual());
-		//
-		// for (String objKey : figure.getObjects().keySet()) {
-		// System.out
-		// .println("-------------------- objects ----------------------");
-		// System.out.println("Raven Obj: " + objKey);
-		// RavensObject obj = figure.getObjects().get(objKey);
-		// System.out.println("Object: " + obj.getName());
-		// for (String attrKey : obj.getAttributes().keySet()) {
-		// System.out.println("attribute: " + attrKey);
-		// System.out.println("attribute value: "
-		// + obj.getAttributes().get(attrKey));
-		// }
-		//
-		// }
-		//
-		// }
+		System.out.println("The Answer picked is: " + (resultIndex + 1));
+		return resultIndex + 1;
 
 	}
 
-	private boolean testReleationship(String string,
-			List<List<Map<String, CHANGE>>> differenceX, RavensFigure[][] matrix) {
+	private int testReleationship(String string, int matrixSize,
+			RavensFigure[][] matrix) {
+		// step 1. generate relationships for all rows and columns except answer
+		// row/column
+		// step 2. compare relationship with answer relationship
+		// step 3. generate a score for the difference in relationship
+		// a. no shapes
+		int score = 0;
+		List<List<Map<String, CHANGE>>> frameDifference = null;
+		List<RavensFigure> list = new ArrayList<>();
+		if (string.equals("x")) {
+
+			for (int y = 0; y < matrixSize - 1; y++) {
+
+				for (int x = 0; x < matrixSize; x++) {
+					list.add(matrix[x][y]);
+				}
+				frameDifference = generateRelationship(list);
+				score += calculateScore(frameDifference);
+				list.clear();
+			}
+		} else {
+			for (int x = 0; x < matrixSize - 1; x++) {
+
+				for (int y = 0; y < matrixSize; y++) {
+					list.add(matrix[x][y]);
+				}
+				frameDifference = generateRelationship(list);
+				score += calculateScore(frameDifference);
+				list.clear();
+			}
+		}
+
 		// TODO Auto-generated method stub
-		return false;
+		return score / (matrixSize - 1);
 	}
 
 	// difference of all the frames
@@ -254,10 +259,10 @@ public class Agent {
 		Map<String, CHANGE> difference = new HashMap<>();
 		// this is a set intersect
 		String[] figureObjectAttrKey = (String[]) figureObject.getAttributes()
-				.keySet().toArray();
+				.keySet().toArray(new String[0]);
 		int figureObjAttrLength = figureObjectAttrKey.length;
 		String[] lastFrameObjectAttrKey = (String[]) lastFrameObject
-				.getAttributes().keySet().toArray();
+				.getAttributes().keySet().toArray(new String[0]);
 		List<String> attrFound = new ArrayList<>();
 		int lastFrameObjAttrLength = lastFrameObjectAttrKey.length;
 		for (int i = 0; i < lastFrameObjAttrLength; i++) {
@@ -275,7 +280,35 @@ public class Agent {
 						if (attrKey.equals("size")) {
 							attrChange = CHANGE.SCALED;
 						} else if (attrKey.equals("angle")) {
-							attrChange = CHANGE.ROTATED;
+							int value = Integer.valueOf(figureObject
+									.getAttributes()
+									.get(attrKey))
+									-Integer.valueOf(lastFrameObject.getAttributes()
+											.get(attrKey));
+							System.out.println("value1: "+Integer.valueOf(figureObject
+									.getAttributes()
+									.get(attrKey)));
+							System.out.println("value2: "+Integer.valueOf(lastFrameObject
+									.getAttributes()
+									.get(attrKey)));
+							if(value==45||value==-45){
+								
+							attrChange = CHANGE.ROTATED_45;
+							}else if(value==90||value==-90){
+								
+								attrChange = CHANGE.ROTATED_90;
+							}else if(value==135||value==-135){
+								attrChange = CHANGE.ROTATED_135;
+							}else if(value==180||value==-180){
+								attrChange = CHANGE.ROTATED_180;
+							}else if(value==225||value==-225){
+								attrChange = CHANGE.ROTATED_225;
+							}else if(value==270||value==-270){
+								attrChange = CHANGE.ROTATED_270;
+							}else if(value==315||value==-315){
+							
+								attrChange = CHANGE.ROTATED_315;
+							}
 						} else if (attrKey.equals("fill")) {
 							attrChange = CHANGE.FILL;
 						} else {
@@ -317,7 +350,8 @@ public class Agent {
 	}
 
 	private int calculateScore(Map<String, CHANGE> attributes) {
-		CHANGE[] changes = (CHANGE[]) attributes.values().toArray();
+		CHANGE[] changes = (CHANGE[]) attributes.values()
+				.toArray(new CHANGE[0]);
 		int score = 0;
 		//
 		// Unchanged
@@ -334,23 +368,35 @@ public class Agent {
 		// 0 point
 		for (CHANGE change : changes) {
 			if (change.equals(CHANGE.NO_CHANGE)) {
-				score += 5;
+				score += 20;
 			} else if (change.equals(CHANGE.REFLECTED)) {
-				score += 4;
-			} else if (change.equals(CHANGE.ROTATED)) {
-				score += 3;
-			} else if (change.equals(CHANGE.SCALED)
+				score += 16;
+			} else if (change.equals(CHANGE.ROTATED_45)) {
+				score += 15;
+			}else if (change.equals(CHANGE.ROTATED_90)) {
+				score += 11;
+			}else if (change.equals(CHANGE.ROTATED_135)) {
+				score += 10;
+			}else if (change.equals(CHANGE.ROTATED_180)) {
+				score += 9;
+			}else if (change.equals(CHANGE.ROTATED_225)) {
+				score += 8;
+			}else if (change.equals(CHANGE.ROTATED_270)) {
+				score += 7;
+			}else if (change.equals(CHANGE.ROTATED_315)) {
+				score += 6;
+			}else if (change.equals(CHANGE.SCALED)
 					|| change.equals(CHANGE.FILL)) {
-				score += 2;
+				score += 4;
 			} else if (change.equals(CHANGE.ADDITION)
 					|| change.equals(CHANGE.DELETION)) {
-				score += 1;
+				score -= 10;
 			}
 		}
 		return score;
 	}
 
 	enum CHANGE {
-		NO_CHANGE, REFLECTED, ROTATED, SCALED, FILL, ADDITION, DELETION, TRANSLATION,
+		NO_CHANGE, REFLECTED, ROTATED_45, ROTATED_90,ROTATED_135,ROTATED_180,ROTATED_225,ROTATED_270,ROTATED_315, SCALED, FILL, ADDITION, DELETION, TRANSLATION,
 	}
 }
