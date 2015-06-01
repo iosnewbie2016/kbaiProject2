@@ -140,7 +140,12 @@ public class Agent {
 			int scoreY = calculateScore(differenceY);
 
 			// TEST answer choice
-			
+			if(isPossibleY-scoreY==0){
+				validChoices[i-1]++;
+			}
+			if(isPossibleX-scoreX==0){
+				validChoices[i-1]++;
+			}
 			// validChoices[i - 1] = isPossibleX && isPossibleY;
 			scores[i - 1] = Math.abs(((isPossibleY - scoreY))
 					+ (isPossibleX - scoreX));
@@ -154,11 +159,14 @@ public class Agent {
 		}
 		int result = Integer.MAX_VALUE;
 		int resultIndex = -2;
+		int index=0;
 		for (int z = 0; z < scores.length; z++) {
-			if (scores[z] < result) {
+			if (scores[z] < result||(scores[z]==result&&validChoices[z]>validChoices[index])) {
 				result = scores[z];
 				resultIndex = z;
+				index=z;
 			}
+			
 		}
 		System.out.println("The Answer picked is: " + (resultIndex + 1));
 		return resultIndex + 1;
