@@ -79,7 +79,8 @@ public class Agent {
 		int[] scores = new int[choices];
 		Arrays.fill(scores, -1);
 		HashMap<String, RavensFigure> figures = problem.getFigures();
-
+		
+		
 		char panelSelection = 'A';
 		/************************************** semantic network ****************************************/
 		// 1. iterate through 0 - panels + 'A' and convert to raven figure
@@ -126,16 +127,16 @@ public class Agent {
 			differenceY = generateRelationship(listY);
 			differenceX = generateRelationship(listX);
 			// TODO[DEBUG] remove
-			if (problem.getName().equals("Basic Problem B-10")) {
-				if (i == 3 || i == 4) {
-					System.out.println("===============================ANSWER" + i);
-
-					System.out.println("difference in Y ");
-					printRelationship(differenceY);
-					System.out.println("difference in X ");
-					printRelationship(differenceX);
-				}
-			}
+			// if (problem.getName().equals("Basic Problem B-05")) {
+			// if (i == 4 || i == -1) {
+			// System.out.println("===============================ANSWER" + i);
+			//
+			// System.out.println("difference in Y ");
+			// printRelationship(differenceY);
+			// System.out.println("difference in X ");
+			// printRelationship(differenceX);
+			// }
+			// }
 			int scoreX = calculateScore(differenceX);
 			int scoreY = calculateScore(differenceY);
 
@@ -168,6 +169,15 @@ public class Agent {
 				index = z;
 			}
 
+		}
+		
+		int sum =0;
+		for(int score:scores){
+			sum+=score;
+		}
+		System.out.println(sum);
+		if(sum==0){
+			resultIndex=-2;
 		}
 		System.out.println("The Answer picked is: " + (resultIndex + 1));
 		return resultIndex + 1;
@@ -214,8 +224,10 @@ public class Agent {
 				}
 				frameDifference = generateRelationship(list);
 				//TODO REMOVE
-				System.out.println("X");
-				printRelationship(frameDifference);
+				// System.out.println("X");
+				// printRelationship(frameDifference);
+				
+				
 				score += calculateScore(frameDifference);
 				list.clear();
 			}
@@ -486,49 +498,49 @@ public class Agent {
 			if (change.equals(CHANGE.NO_CHANGE)) {
 				score += 0;
 			} else if (change.equals(CHANGE.REFLECTED)) {
-				score += 19-25;
+				score -= 6;
 			} else if (change.equals(CHANGE.ROTATED_45)) {
-				score += 18-25;
+				score -= 7;
 			} else if (change.equals(CHANGE.ROTATED_90)) {
-				score += 17-25;
+				score -= 8;
 			} else if (change.equals(CHANGE.ROTATED_135)) {
-				score += 16-25;
+				score -= 9;
 			} else if (change.equals(CHANGE.ROTATED_180)) {
-				score += 15-25;
+				score -= 10;
 			} else if (change.equals(CHANGE.ROTATED_225)) {
-				score += 14-25;
+				score -= 11;
 			} else if (change.equals(CHANGE.ROTATED_270)) {
-				score += 13-25;
+				score -= 12;
 			} else if (change.equals(CHANGE.ROTATED_315)) {
-				score += 12-25;
+				score -= 13;
 			} else if (change.equals(CHANGE.ROTATED_NEG_45)) {
-				score -= 19-25;
+				score += 6;
 			} else if (change.equals(CHANGE.ROTATED_NEG_90)) {
-				score -= 18-25;
+				score += 7;
 			} else if (change.equals(CHANGE.ROTATED_NEG_135)) {
-				score -= 17-25;
+				score += 8;
 			} else if (change.equals(CHANGE.ROTATED_NEG_180)) {
-				score -= 16-25;
+				score += 9;
 			} else if (change.equals(CHANGE.ROTATED_NEG_225)) {
-				score -= 15-25;
+				score += 10;
 			} else if (change.equals(CHANGE.ROTATED_NEG_270)) {
-				score -= 14-25;
+				score += 11;
 			} else if (change.equals(CHANGE.ROTATED_NEG_315)) {
-				score -= 13-25;
+				score += 12;
 			} else if (change.equals(CHANGE.SCALED)
 					|| change.equals(CHANGE.FILL)) {
-				score += 20-25;
+				score -= 5;
 			} else if (change.equals(CHANGE.UNFILL)) {
-				score += 27-25;
+				score += 2;
 			} else if (change.equals(CHANGE.ADDITION)
 					|| change.equals(CHANGE.DELETION)) {
 				if (change.equals(CHANGE.ADDITION)) {
-					score += 10-25;
+					score -= 15;
 				} else {
-					score += 5-25;
+					score -= 15;
 				}
 			} else if (change.equals(CHANGE.TRANSLATION)) {
-				score += 2-25;
+				score +=1;
 			}
 		}
 		return score;
