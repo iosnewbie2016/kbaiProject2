@@ -126,7 +126,7 @@ public class Agent {
 			differenceY = generateRelationship(listY);
 			differenceX = generateRelationship(listX);
 			// TODO[DEBUG] remove
-			if (problem.getName().equals("Basic Problem B-08")) {
+			if (problem.getName().equals("Basic Problem B-10")) {
 				if (i == 3 || i == 6) {
 					System.out.println("ANSWER" + i);
 
@@ -140,11 +140,11 @@ public class Agent {
 			int scoreY = calculateScore(differenceY);
 
 			// TEST answer choice
-			if(isPossibleY-scoreY==0){
-				validChoices[i-1]++;
+			if (isPossibleY - scoreY == 0) {
+				validChoices[i - 1]++;
 			}
-			if(isPossibleX-scoreX==0){
-				validChoices[i-1]++;
+			if (isPossibleX - scoreX == 0) {
+				validChoices[i - 1]++;
 			}
 			// validChoices[i - 1] = isPossibleX && isPossibleY;
 			scores[i - 1] = Math.abs(((isPossibleY - scoreY))
@@ -159,14 +159,15 @@ public class Agent {
 		}
 		int result = Integer.MAX_VALUE;
 		int resultIndex = -2;
-		int index=0;
+		int index = 0;
 		for (int z = 0; z < scores.length; z++) {
-			if (scores[z] < result||(scores[z]==result&&validChoices[z]>validChoices[index])) {
+			if (scores[z] < result
+					|| (scores[z] == result && validChoices[z] > validChoices[index])) {
 				result = scores[z];
 				resultIndex = z;
-				index=z;
+				index = z;
 			}
-			
+
 		}
 		System.out.println("The Answer picked is: " + (resultIndex + 1));
 		return resultIndex + 1;
@@ -260,19 +261,16 @@ public class Agent {
 		// an object can be added/ removed or changed.
 		// hashMap = change for object
 		// List<hashMap>= possible changes for object
-
+		// TODO: fix this
 		for (String figureKey : figure.getObjects().keySet()) {
 
 			RavensObject figureObject = figure.getObjects().get(figureKey);
 			for (String lastFrameKey : lastFrame.getObjects().keySet()) {
 				RavensObject lastFrameObject = lastFrame.getObjects().get(
 						lastFrameKey);
-
 				// compare objects
 				frameDiff.add(findObjDifference(figureObject, lastFrameObject));
-
 			}
-
 		}
 
 		return frameDiff;
@@ -457,8 +455,8 @@ public class Agent {
 			} else if (change.equals(CHANGE.SCALED)
 					|| change.equals(CHANGE.FILL)) {
 				score += 20;
-			}else if (change.equals(CHANGE.UNFILL)) {
-					score += 27;
+			} else if (change.equals(CHANGE.UNFILL)) {
+				score += 27;
 			} else if (change.equals(CHANGE.ADDITION)
 					|| change.equals(CHANGE.DELETION)) {
 				if (change.equals(CHANGE.ADDITION)) {
