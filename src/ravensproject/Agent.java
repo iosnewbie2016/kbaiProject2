@@ -127,8 +127,8 @@ public class Agent {
 			differenceX = generateRelationship(listX);
 			// TODO[DEBUG] remove
 			if (problem.getName().equals("Basic Problem B-10")) {
-				if (i == 3 || i == 6) {
-					System.out.println("ANSWER" + i);
+				if (i == 3 || i == 4) {
+					System.out.println("===============================ANSWER" + i);
 
 					System.out.println("difference in Y ");
 					printRelationship(differenceY);
@@ -213,6 +213,9 @@ public class Agent {
 					list.add(matrix[x][y]);
 				}
 				frameDifference = generateRelationship(list);
+				//TODO REMOVE
+				System.out.println("X");
+				printRelationship(frameDifference);
 				score += calculateScore(frameDifference);
 				list.clear();
 			}
@@ -223,6 +226,9 @@ public class Agent {
 					list.add(matrix[x][y]);
 				}
 				frameDifference = generateRelationship(list);
+				//TODO REMOVE
+				System.out.println("Y");
+				printRelationship(frameDifference);
 				score += calculateScore(frameDifference);
 				list.clear();
 			}
@@ -257,21 +263,53 @@ public class Agent {
 	private List<Map<String, CHANGE>> findDifference(RavensFigure figure,
 			RavensFigure lastFrame) {
 		List<Map<String, CHANGE>> frameDiff = new ArrayList<>();
-
 		// an object can be added/ removed or changed.
 		// hashMap = change for object
 		// List<hashMap>= possible changes for object
 		// TODO: fix this
-		for (String figureKey : figure.getObjects().keySet()) {
+		String[] figureKeys = figure.getObjects().keySet()
+				.toArray(new String[0]);
 
-			RavensObject figureObject = figure.getObjects().get(figureKey);
-			for (String lastFrameKey : lastFrame.getObjects().keySet()) {
-				RavensObject lastFrameObject = lastFrame.getObjects().get(
-						lastFrameKey);
-				// compare objects
-				frameDiff.add(findObjDifference(figureObject, lastFrameObject));
+		String[] lastFrameKeys = lastFrame.getObjects().keySet()
+				.toArray(new String[0]);
+		Arrays.sort(figureKeys);
+		Arrays.sort(lastFrameKeys);
+
+		int size = figureKeys.length > lastFrameKeys.length ? lastFrameKeys.length
+				: figureKeys.length;
+
+		for (int i = 0; i < size; i++) {
+			RavensObject figureObject = figure.getObjects().get(figureKeys[i]);
+			RavensObject lastFrameObject = lastFrame.getObjects().get(
+					lastFrameKeys[i]);
+			frameDiff.add(findObjDifference(figureObject, lastFrameObject));
+		}
+
+		if (size < figureKeys.length) {
+			for (int j = size; j < figureKeys.length; j++) {
+				RavensObject figureObject = figure.getObjects().get(
+						figureKeys[j]);
+				frameDiff.add(findObjDifference(figureObject, null));
 			}
 		}
+		if (size < lastFrameKeys.length) {
+			for (int j = size; j < lastFrameKeys.length; j++) {
+				RavensObject lastFrameObject = lastFrame.getObjects().get(
+						lastFrameKeys[j]);
+				frameDiff.add(findObjDifference(null, lastFrameObject));
+			}
+		}
+
+		// for (String figureKey : figure.getObjects().keySet()) {
+		//
+		// RavensObject figureObject = figure.getObjects().get(figureKey);
+		// for (String lastFrameKey : lastFrame.getObjects().keySet()) {
+		// RavensObject lastFrameObject = lastFrame.getObjects().get(
+		// lastFrameKey);
+		// // compare objects
+		// frameDiff.add(findObjDifference(figureObject, lastFrameObject));
+		// }
+		// }
 
 		return frameDiff;
 	}
@@ -293,6 +331,30 @@ public class Agent {
 	private Map<String, CHANGE> findObjDifference(RavensObject figureObject,
 			RavensObject lastFrameObject) {
 		Map<String, CHANGE> difference = new HashMap<>();
+
+		if (lastFrameObject == null) {
+			for (String key : figureObject.getAttributes().keySet()) {
+				if (key.equals("shape")) {
+					difference.put(key, CHANGE.ADDITION);
+				} else {
+					difference.put(key, CHANGE.NO_CHANGE);
+				}
+			}
+			return difference;
+
+		} else if (figureObject == null) {
+
+			for (String key : lastFrameObject.getAttributes().keySet()) {
+				if (key.equals("shape")) {
+					difference.put(key, CHANGE.DELETION);
+				} else {
+					difference.put(key, CHANGE.NO_CHANGE);
+				}
+			}
+			return difference;
+
+		}
+
 		// this is a set intersect
 		String[] figureObjectAttrKey = (String[]) figureObject.getAttributes()
 				.keySet().toArray(new String[0]);
@@ -312,8 +374,9 @@ public class Agent {
 							.get(attrKey)
 							.equals(lastFrameObject.getAttributes()
 									.get(attrKey))) {
-
-						if (attrKey.equals("size")) {
+						if (attrKey.equals("inside")) {
+							attrChange = CHANGE.NO_CHANGE;
+						}else if (attrKey.equals("size")) {
 							attrChange = CHANGE.SCALED;
 						} else if (attrKey.equals("angle")) {
 							int figureValue = Integer.valueOf(figureObject
@@ -421,51 +484,51 @@ public class Agent {
 		// 0 point
 		for (CHANGE change : changes) {
 			if (change.equals(CHANGE.NO_CHANGE)) {
-				score += 25;
+				score += 0;
 			} else if (change.equals(CHANGE.REFLECTED)) {
-				score += 19;
+				score += 19-25;
 			} else if (change.equals(CHANGE.ROTATED_45)) {
-				score += 18;
+				score += 18-25;
 			} else if (change.equals(CHANGE.ROTATED_90)) {
-				score += 17;
+				score += 17-25;
 			} else if (change.equals(CHANGE.ROTATED_135)) {
-				score += 16;
+				score += 16-25;
 			} else if (change.equals(CHANGE.ROTATED_180)) {
-				score += 15;
+				score += 15-25;
 			} else if (change.equals(CHANGE.ROTATED_225)) {
-				score += 14;
+				score += 14-25;
 			} else if (change.equals(CHANGE.ROTATED_270)) {
-				score += 13;
+				score += 13-25;
 			} else if (change.equals(CHANGE.ROTATED_315)) {
-				score += 12;
+				score += 12-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_45)) {
-				score -= 19;
+				score -= 19-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_90)) {
-				score -= 18;
+				score -= 18-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_135)) {
-				score -= 17;
+				score -= 17-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_180)) {
-				score -= 16;
+				score -= 16-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_225)) {
-				score -= 15;
+				score -= 15-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_270)) {
-				score -= 14;
+				score -= 14-25;
 			} else if (change.equals(CHANGE.ROTATED_NEG_315)) {
-				score -= 13;
+				score -= 13-25;
 			} else if (change.equals(CHANGE.SCALED)
 					|| change.equals(CHANGE.FILL)) {
-				score += 20;
+				score += 20-25;
 			} else if (change.equals(CHANGE.UNFILL)) {
-				score += 27;
+				score += 27-25;
 			} else if (change.equals(CHANGE.ADDITION)
 					|| change.equals(CHANGE.DELETION)) {
 				if (change.equals(CHANGE.ADDITION)) {
-					score += 10;
+					score += 10-25;
 				} else {
-					score += 5;
+					score += 5-25;
 				}
 			} else if (change.equals(CHANGE.TRANSLATION)) {
-				score += 2;
+				score += 2-25;
 			}
 		}
 		return score;

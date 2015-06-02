@@ -13,12 +13,12 @@ A
 		size:huge
 		fill:no
 B
-	c
+	d
 		shape:square
 		size:medium
 		fill:no
 		inside:d
-	d
+	c
 		shape:circle
 		size:huge
 		fill:no
